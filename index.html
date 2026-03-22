@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Medical Expense Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -121,7 +123,7 @@
   }
   #sidebar nav a:hover { background: var(--sidebar-hover); color: #e2e8f0; }
   #sidebar nav a.active { background: var(--sidebar-active); color: #93c5fd; border-left-color: #3b82f6; }
-  #sidebar nav a .icon { font-size: 16px; width: 20px; text-align: center; }
+  #sidebar nav a .icon { font-size: 16px; width: 20px; text-align: center; display:flex; align-items:center; justify-content:center; }
 
   #sidebar .sidebar-section {
     font-size: 10px;
@@ -502,7 +504,7 @@
     padding: 40px 20px;
     color: var(--gray-500);
   }
-  .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-state .icon { font-size: 36px; margin-bottom: 10px; display:flex; justify-content:center; }
   .empty-state p { font-size: 14px; }
 
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -538,6 +540,46 @@
     border-color: var(--gray-200);
   }
   .filter-bar label { font-size: 12px; color: var(--gray-500); }
+
+  /* ── Lucide icon sizing ── */
+  .licon { display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; flex-shrink:0; }
+  .licon svg { display:block; }
+  #sidebar nav a .licon svg { width:16px; height:16px; }
+  .card-title .licon svg { width:15px; height:15px; color:var(--primary); }
+  .empty-state .licon svg { width:38px; height:38px; margin-bottom:10px; }
+  .btn .licon svg { width:13px; height:13px; }
+  .hamburger .licon svg { width:20px; height:20px; }
+  .mob-theme-btn .licon svg, .theme-toggle .licon svg { width:18px; height:18px; }
+  #syncStatus .licon svg { width:13px; height:13px; }
+  .actions button .licon svg { width:14px; height:14px; }
+  .notice .licon svg { width:15px; height:15px; flex-shrink:0; }
+  .person-banner .licon svg { width:15px; height:15px; }
+
+  /* ── Person filter banner ── */
+  .person-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--primary);
+  }
+  .person-banner .pb-total { font-size: 20px; font-weight: 700; }
+  .person-banner .pb-sub   { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+  body.dark .person-banner {
+    background: rgba(29,78,216,0.15);
+    border-color: rgba(29,78,216,0.5);
+    color: #93c5fd;
+  }
+  body.dark .person-banner .pb-sub { color: var(--gray-400); }
+
+  /* ── Dashboard charts ── */
+  .chart-card { position: relative; }
+  .chart-wrap { position: relative; height: 240px; }
 
   /* ── Dark mode badge overrides ── */
   body.dark .badge-david   { background: #1e3a5f; color: #93c5fd; }
@@ -625,9 +667,9 @@
 
 <!-- Mobile top bar (visible only on small screens) -->
 <div class="mobile-topbar">
-  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <button class="hamburger" onclick="toggleSidebar()"><i data-lucide="menu" class="licon" style="width:20px;height:20px"></i></button>
   <span class="title">Medical Expense Tracker</span>
-  <button class="mob-theme-btn" onclick="toggleTheme()" id="mobThemeBtn">🌙</button>
+  <button class="mob-theme-btn" onclick="toggleTheme()" id="mobThemeBtn"><i data-lucide="moon" class="licon" style="width:18px;height:18px"></i></button>
 </div>
 <div id="sidebarOverlay" onclick="closeSidebar()"></div>
 
@@ -638,37 +680,37 @@
       <h2>Medical Expense<br>Tracker</h2>
       <p id="currentYear">2026</p>
     </div>
-    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Toggle light/dark mode">🌙</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Toggle light/dark mode"><i data-lucide="moon" class="licon" style="width:18px;height:18px"></i></button>
   </div>
   <nav>
     <div class="sidebar-section">Overview</div>
     <a onclick="showPage('dashboard')" id="nav-dashboard" class="active">
-      <span class="icon">📊</span> Dashboard
+      <span class="icon"><i data-lucide="layout-dashboard" class="licon" style="width:16px;height:16px"></i></span> Dashboard
     </a>
 
     <div class="sidebar-section">Tracking</div>
     <a onclick="showPage('hsa')" id="nav-hsa">
-      <span class="icon">🏦</span> HSA Tracker
+      <span class="icon"><i data-lucide="landmark" class="licon" style="width:16px;height:16px"></i></span> HSA Tracker
     </a>
     <a onclick="showPage('children')" id="nav-children">
-      <span class="icon">👨‍👧‍👦</span> Children's Expenses
+      <span class="icon"><i data-lucide="users" class="licon" style="width:16px;height:16px"></i></span> Children's Expenses
     </a>
     <a onclick="showPage('payments')" id="nav-payments">
-      <span class="icon">💳</span> Payment Calculator
+      <span class="icon"><i data-lucide="credit-card" class="licon" style="width:16px;height:16px"></i></span> Payment Calculator
     </a>
 
     <div class="sidebar-section">Settings</div>
     <a onclick="openSettings()" id="nav-settings">
-      <span class="icon">⚙️</span> GitHub Sync
+      <span class="icon"><i data-lucide="settings" class="licon" style="width:16px;height:16px"></i></span> GitHub Sync
     </a>
   </nav>
   <button class="sidebar-close" onclick="closeSidebar()"
     style="background:none;border:none;color:#94a3b8;font-size:12px;padding:8px 16px;cursor:pointer;text-align:left;">
-    ✕ Close menu
+    <i data-lucide="x" class="licon" style="width:14px;height:14px"></i> Close menu
   </button>
-  <div class="sync-status" id="syncStatus">○ GitHub not configured</div>
+  <div class="sync-status" id="syncStatus"><i data-lucide="circle" class="licon" style="width:13px;height:13px"></i> GitHub not configured</div>
   <button class="add-btn" onclick="openAddExpense()">
-    ＋ Add Expense
+    <i data-lucide="plus" class="licon" style="width:14px;height:14px"></i> Add Expense
   </button>
 </div>
 
@@ -683,19 +725,39 @@
         <p>Overview of all medical expense tracking</p>
       </div>
       <div id="exportImport">
-        <button class="btn btn-outline btn-sm" onclick="exportData()">⬇ Export JSON</button>
+        <button class="btn btn-outline btn-sm" onclick="exportData()"><i data-lucide="download" class="licon" style="width:13px;height:13px"></i> Export JSON</button>
         <label class="btn btn-outline btn-sm" style="cursor:pointer;">
-          ⬆ Import JSON <input type="file" accept=".json" onchange="importData(event)" style="display:none">
+          <i data-lucide="upload" class="licon" style="width:13px;height:13px"></i> Import JSON <input type="file" accept=".json" onchange="importData(event)" style="display:none">
         </label>
-        <button class="btn btn-outline btn-sm" onclick="exportCSV()">📄 Export CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV()"><i data-lucide="file-text" class="licon" style="width:13px;height:13px"></i> Export CSV</button>
       </div>
     </div>
 
     <div class="stats-grid" id="dashStats"></div>
 
+    <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:6px">
+      <div class="filter-bar" style="margin:0">
+        <label style="font-weight:600;color:var(--gray-600)"><i data-lucide="calendar" class="licon" style="width:14px;height:14px"></i> Chart Year:</label>
+        <select id="dashFilterYear" onchange="renderDashboard()">
+          <option value="">All Years</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-bottom:0">
+      <div class="card chart-card">
+        <div class="card-title"><i data-lucide="pie-chart" class="licon" style="width:15px;height:15px"></i> Spending by Person <span style="font-size:11px;font-weight:400;color:var(--gray-500)">(current year)</span></div>
+        <div class="chart-wrap"><canvas id="chartByPerson"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <div class="card-title"><i data-lucide="bar-chart-2" class="licon" style="width:15px;height:15px"></i> Monthly Spending <span style="font-size:11px;font-weight:400;color:var(--gray-500)">(current year)</span></div>
+        <div class="chart-wrap"><canvas id="chartByMonth"></canvas></div>
+      </div>
+    </div>
+
     <div class="two-col">
       <div class="card">
-        <div class="card-title">📋 Recent Expenses</div>
+        <div class="card-title"><i data-lucide="list" class="licon" style="width:15px;height:15px"></i> Recent Expenses</div>
         <div class="table-wrap">
           <table id="recentTable">
             <thead>
@@ -708,7 +770,7 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-title">💳 Next Payments Due</div>
+        <div class="card-title"><i data-lucide="credit-card" class="licon" style="width:15px;height:15px"></i> Next Payments Due</div>
         <div id="nextPaymentSummary"></div>
       </div>
     </div>
@@ -721,14 +783,15 @@
         <h1>HSA Expense Tracker</h1>
         <p>All medical expenses — reimburse yourself from your HSA account</p>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="openAddExpense()">＋ Add Expense</button>
+      <button class="btn btn-primary btn-sm" onclick="openAddExpense()"><i data-lucide="plus" class="licon" style="width:13px;height:13px"></i> Add Expense</button>
     </div>
 
     <div class="stats-grid" id="hsaStats"></div>
+    <div id="hsaPersonBanner"></div>
 
     <div class="card">
       <div class="card-title" style="justify-content:space-between">
-        <span>💊 All Medical Expenses</span>
+        <span><i data-lucide="stethoscope" class="licon" style="width:15px;height:15px"></i> All Medical Expenses</span>
         <div class="filter-bar" style="margin:0">
           <select id="hsaFilterPerson" onchange="renderHSA()">
             <option value="">All People</option>
@@ -758,8 +821,8 @@
 
     <div class="card">
       <div class="card-title" style="justify-content:space-between">
-        <span>🏦 HSA Reimbursements (Paybacks to Self)</span>
-        <button class="btn btn-success btn-sm" onclick="openAddHSAPayback()">＋ Add Reimbursement</button>
+        <span><i data-lucide="landmark" class="licon" style="width:15px;height:15px"></i> HSA Reimbursements (Paybacks to Self)</span>
+        <button class="btn btn-success btn-sm" onclick="openAddHSAPayback()"><i data-lucide="plus" class="licon" style="width:13px;height:13px"></i> Add Reimbursement</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -780,14 +843,15 @@
         <h1>Children's Medical Expenses</h1>
         <p>David &amp; Coraline — ex-wife owes 27% of each expense</p>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="openAddExpense('children')">＋ Add Expense</button>
+      <button class="btn btn-primary btn-sm" onclick="openAddExpense('children')"><i data-lucide="plus" class="licon" style="width:13px;height:13px"></i> Add Expense</button>
     </div>
 
     <div class="stats-grid" id="childStats"></div>
+    <div id="childPersonBanner"></div>
 
     <div class="card">
       <div class="card-title" style="justify-content:space-between">
-        <span>👨‍👧‍👦 Children's Expense Ledger</span>
+        <span><i data-lucide="users" class="licon" style="width:15px;height:15px"></i> Children's Expense Ledger</span>
         <div class="filter-bar" style="margin:0">
           <select id="childFilterPerson" onchange="renderChildren()">
             <option value="">David &amp; Coraline</option>
@@ -818,7 +882,7 @@
         <h1>Payment Calculator</h1>
         <p>Calculate check amount for 15th &amp; last-of-month payments to ex-wife</p>
       </div>
-      <button class="btn btn-success btn-sm" onclick="openRecordPayment()">＋ Record Payment</button>
+      <button class="btn btn-success btn-sm" onclick="openRecordPayment()"><i data-lucide="plus" class="licon" style="width:13px;height:13px"></i> Record Payment</button>
     </div>
 
     <div class="two-col">
@@ -1010,12 +1074,12 @@
 <!-- GitHub Settings Modal -->
 <div class="modal-bg" id="modalSettings">
   <div class="modal">
-    <h2>⚙️ GitHub Sync Settings</h2>
+    <h2><i data-lucide="settings" class="licon" style="width:18px;height:18px"></i> GitHub Sync Settings</h2>
     <p style="font-size:13px;color:var(--gray-500);margin-bottom:6px">
       Your data will be saved as <code style="background:var(--gray-100);padding:1px 5px;border-radius:3px">data.json</code> in a private GitHub repo — accessible from any device.
     </p>
     <div class="notice notice-blue" style="margin-bottom:18px;font-size:12.5px">
-      ℹ️ <span>Create a <strong>private</strong> repo on GitHub, then generate a Personal Access Token with <strong>repo</strong> scope at <em>GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)</em>.</span>
+      <i data-lucide="info" class="licon" style="width:15px;height:15px"></i> <span>Create a <strong>private</strong> repo on GitHub, then generate a Personal Access Token with <strong>repo</strong> scope at <em>GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)</em>.</span>
     </div>
     <div class="form-grid">
       <div class="form-group full">
@@ -1060,15 +1124,15 @@ const SEED_DATA = {
     // ── 2026 HSA entries (skipChildren = imported before dual-tracking was set up) ──
     { id:'s01', date:'2026-01-12', person:'Erik',     provider:'Walgreens',              amount:22.44,  receiptName:'Walgreens prescriptions',           notes:'Imported from 2026 HSA tracker', skipChildren:true },
     { id:'s02', date:'2026-01-12', person:'Erik',     provider:'Rebecca Blaede LLC',     amount:104.00, receiptName:'Rebecca Blaede LLC',                notes:'Imported from 2026 HSA tracker', skipChildren:true },
-    { id:'s03', date:'2026-01-15', person:'Coraline', provider:'Dr. Westerman',          amount:532.64, receiptName:'Coraline Dr Westerman',             notes:'Imported from 2026 HSA tracker', skipChildren:true },
+    { id:'s03', date:'2026-01-15', person:'Coraline', provider:'Dr. Westerman',          amount:532.64, receiptName:'Coraline Dr Westerman',             notes:'Imported from 2026 HSA tracker' },
     { id:'s04', date:'2026-01-22', person:'Erik',     provider:'Walgreens',              amount:87.23,  receiptName:'Walgreens prescriptions',           notes:'Imported from 2026 HSA tracker', skipChildren:true },
     { id:'s05', date:'2026-01-26', person:'Erik',     provider:'Walgreens',              amount:74.97,  receiptName:'Walgreens prescriptions',           notes:'Imported from 2026 HSA tracker', skipChildren:true },
-    { id:'s06', date:'2026-01-31', person:'David',    provider:'Dr. Nanjoppa',           amount:410.34, receiptName:'David Dr Nanjoppa',                 notes:'Imported from 2026 HSA tracker', skipChildren:true },
+    { id:'s06', date:'2026-01-31', person:'David',    provider:'Dr. Nanjoppa',           amount:410.34, receiptName:'David Dr Nanjoppa',                 notes:'Imported from 2026 HSA tracker' },
     { id:'s07', date:'2026-02-07', person:'Erik',     provider:'Wellspring',             amount:168.16, receiptName:'Wellspring',                        notes:'Imported from 2026 HSA tracker', skipChildren:true },
-    { id:'s08', date:'2026-02-22', person:'Coraline', provider:'Prescription',           amount:9.92,   receiptName:'Coraline prescription',             notes:'Imported from 2026 HSA tracker', skipChildren:true },
-    { id:'s09', date:'2026-02-23', person:'Coraline', provider:'Prescription',           amount:44.48,  receiptName:'Coraline prescription',             notes:'Imported from 2026 HSA tracker', skipChildren:true },
+    { id:'s08', date:'2026-02-22', person:'Coraline', provider:'Prescription',           amount:9.92,   receiptName:'Coraline prescription',             notes:'Imported from 2026 HSA tracker' },
+    { id:'s09', date:'2026-02-23', person:'Coraline', provider:'Prescription',           amount:44.48,  receiptName:'Coraline prescription',             notes:'Imported from 2026 HSA tracker' },
     { id:'s10', date:'2026-02-27', person:'Erik',     provider:'Wellspring',             amount:168.16, receiptName:'Wellspring',                        notes:'Imported from 2026 HSA tracker', skipChildren:true },
-    { id:'s11', date:'2026-03-22', person:'Coraline', provider:'HealthPartners Therapy', amount:635.99, receiptName:'Coraline health partners therapy',  notes:'Imported from 2026 HSA tracker', skipChildren:true },
+    { id:'s11', date:'2026-03-22', person:'Coraline', provider:'HealthPartners Therapy', amount:635.99, receiptName:'Coraline health partners therapy',  notes:'Imported from 2026 HSA tracker' },
     // ── Historical children's expenses 2020–2025 (from Children's medical reimbursement tracking.xlsx) ──
     { id:'h_001', date:'2020-05-15', person:'David',    provider:'Minnesota Orthodontics', amount:149.00,  receiptName:'DC MINNESOTA OR 507-6454222 MA R',               notes:'Historical import' },
     { id:'h_002', date:'2020-05-14', person:'David',    provider:'Family Innovations',     amount:120.00,  receiptName:'Family Innovations',                             notes:'Historical import' },
@@ -1240,10 +1304,10 @@ const SEED_DATA = {
   childPayments: [],
   // childrenOpeningBalance holds the residual 27% balance not covered by the
   // individual h_001–h_162 entries (rounding/missing rows from spreadsheet).
-  // Formula: target $6,250.49 − sum(h_001–h_162 × 0.27) = ~$227.93
+  // Formula: target $6,250.49 − sum(h_001–h_162 × 0.27) − sum(2026 kids × 0.27) = ~$146.63
   // paid: total amount deducted from checks 2020–2025 per spreadsheet cell F249.
   childrenOpeningBalance: {
-    total27pct: 227.93,
+    total27pct: 146.63,
     paid:       6078.77,
   }
 };
@@ -1373,21 +1437,22 @@ function setSyncStatus(status, msg) {
   const el = document.getElementById('syncStatus');
   if (!el) return;
   if (status === 'syncing') {
-    el.innerHTML = '⟳ Syncing…';
+    el.innerHTML = `${li('refresh-cw',13)} Syncing…`;
     el.style.color = '#94a3b8';
   } else if (status === 'synced') {
     const t = new Date().toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'});
-    el.innerHTML = `✓ Synced ${t}`;
+    el.innerHTML = `${li('check-circle',13)} Synced ${t}`;
     el.style.color = '#4ade80';
   } else if (status === 'error') {
-    el.innerHTML = '✗ Sync error';
+    el.innerHTML = `${li('x-circle',13)} Sync error`;
     el.style.color = '#f87171';
     el.title = msg || '';
   } else {
-    el.innerHTML = '○ GitHub not configured';
+    el.innerHTML = `${li('circle',13)} GitHub not configured`;
     el.style.color = '#64748b';
     el.title = '';
   }
+  initIcons();
 }
 
 // ─── Settings modal ───
@@ -1467,6 +1532,15 @@ function renderPage(name) {
 //  FORMATTERS
 // ═══════════════════════════════════════════════════════════
 
+// ── Lucide icon helper ──
+function li(name, size) {
+  size = size || 16;
+  return `<i data-lucide="${name}" class="licon" style="width:${size}px;height:${size}px"></i>`;
+}
+function initIcons() {
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
 function fmt$(n) {
   if (n === null || n === undefined || isNaN(n)) return '—';
   return '$' + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -1529,16 +1603,32 @@ function nextPaymentDate() {
 // ═══════════════════════════════════════════════════════════
 
 function renderDashboard() {
+  // Populate and apply dashboard year filter
+  const curYearStr = String(new Date().getFullYear());
+  const allYears = [...new Set(DATA.expenses.map(e => e.date?.split('-')[0]).filter(Boolean))].sort().reverse();
+  const dysel = document.getElementById('dashFilterYear');
+  if (dysel) {
+    const prevDY = dysel.value;
+    const chosenDY = prevDY || (allYears.includes(curYearStr) ? curYearStr : '');
+    dysel.innerHTML = `<option value="">All Years</option>` + allYears.map(y => `<option ${y===chosenDY?'selected':''}>${y}</option>`).join('');
+    if (!prevDY && chosenDY) dysel.value = chosenDY;
+  }
+  const dashYear = dysel?.value || '';
+
   const hsa = calcHSA();
   const child = calcChildren();
   const { check } = nextCheckAmount();
   const nd = nextPaymentDate();
 
+  const yearExpenses = dashYear ? DATA.expenses.filter(e => e.date?.startsWith(dashYear)) : DATA.expenses;
+  const yearTotal = yearExpenses.reduce((s,e) => s + e.amount, 0);
+  const yearLabel2 = dashYear ? dashYear : 'All time';
+
   document.getElementById('dashStats').innerHTML = `
     <div class="stat-card">
       <div class="label">Total Medical Expenses</div>
-      <div class="value blue">${fmt$(hsa.total)}</div>
-      <div class="sub">${DATA.expenses.length} entries</div>
+      <div class="value blue">${fmt$(yearTotal)}</div>
+      <div class="sub">${yearExpenses.length} entries · ${yearLabel2}</div>
     </div>
     <div class="stat-card">
       <div class="label">HSA Balance Owed to You</div>
@@ -1594,12 +1684,96 @@ function renderDashboard() {
       <span class="calc-value" style="font-size:20px;color:var(--primary)">${fmt$(check)}</span>
     </div>
     ${balance > SCHEDULED_PMT ? `<div class="notice notice-yellow" style="margin-top:12px">
-      ⚠️ Balance owed ($${balance.toFixed(2)}) exceeds $600. Write $0 check and carry $${(balance - SCHEDULED_PMT).toFixed(2)} forward.
+      <i data-lucide="alert-triangle" class="licon" style="width:15px;height:15px"></i> Balance owed ($${balance.toFixed(2)}) exceeds $600. Write $0 check and carry $${(balance - SCHEDULED_PMT).toFixed(2)} forward.
     </div>` : ''}
     <div style="margin-top:14px">
       <button class="btn btn-success btn-sm" onclick="showPage('payments');openRecordPayment()">Record This Payment →</button>
     </div>
   `;
+
+  // ── Charts ──
+  renderDashboardCharts();
+  initIcons();
+}
+
+let _chartByPerson = null;
+let _chartByMonth  = null;
+
+function renderDashboardCharts() {
+  if (typeof Chart === 'undefined') return; // CDN not loaded yet
+
+  const isDark    = document.body.classList.contains('dark');
+  const textColor = isDark ? '#cbd5e1' : '#475569';
+  const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
+  const dysel2   = document.getElementById('dashFilterYear');
+  const thisYear = dysel2?.value || String(new Date().getFullYear());
+
+  const yearExp = thisYear ? DATA.expenses.filter(e => e.date?.startsWith(thisYear)) : DATA.expenses;
+
+  // ── Chart 1: Spending by Person (current year) ──
+  const people   = ['Erik','Wendy','David','Coraline'];
+  const colors   = ['#3b82f6','#a855f7','#10b981','#f59e0b'];
+  const byPerson = people.map(p => yearExp.filter(e => e.person === p).reduce((s,e) => s + e.amount, 0));
+
+  const ctx1 = document.getElementById('chartByPerson');
+  if (ctx1) {
+    if (_chartByPerson) _chartByPerson.destroy();
+    _chartByPerson = new Chart(ctx1, {
+      type: 'doughnut',
+      data: {
+        labels: people,
+        datasets: [{ data: byPerson, backgroundColor: colors, borderWidth: 2,
+          borderColor: isDark ? '#1e293b' : '#ffffff' }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right', labels: { color: textColor, font: { size: 12 }, padding: 12 } },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.label}: $${ctx.raw.toFixed(2)}` } }
+        }
+      }
+    });
+  }
+
+  // ── Chart 2: Monthly spending (current year, stacked by person) ──
+  const months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const datasets = people.map((p, i) => ({
+    label: p,
+    data: months.map((_, mi) => {
+      const mm = String(mi + 1).padStart(2, '0');
+      return yearExp.filter(e => e.person === p && e.date?.startsWith(`${thisYear}-${mm}`))
+                    .reduce((s, e) => s + e.amount, 0);
+    }),
+    backgroundColor: colors[i],
+    borderRadius: 4,
+  }));
+
+  const ctx2 = document.getElementById('chartByMonth');
+  if (ctx2) {
+    if (_chartByMonth) _chartByMonth.destroy();
+    _chartByMonth = new Chart(ctx2, {
+      type: 'bar',
+      data: { labels: months, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: {
+          x: { stacked: true, ticks: { color: textColor }, grid: { color: gridColor } },
+          y: { stacked: true, ticks: { color: textColor, callback: v => '$'+v }, grid: { color: gridColor } }
+        },
+        plugins: {
+          legend: { labels: { color: textColor, font: { size: 12 } } },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: $${ctx.raw.toFixed(2)}` } }
+        }
+      }
+    });
+  }
+
+  // Update chart year labels
+  const yearLabel = thisYear || 'All Years';
+  const c1title = ctx1?.closest('.card')?.querySelector('.card-title span');
+  const c2title = ctx2?.closest('.card')?.querySelector('.card-title span');
+  if (c1title) c1title.textContent = `(${yearLabel})`;
+  if (c2title) c2title.textContent = `(${yearLabel})`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1607,20 +1781,42 @@ function renderDashboard() {
 // ═══════════════════════════════════════════════════════════
 
 function renderHSA() {
-  const filterPerson = document.getElementById('hsaFilterPerson')?.value || '';
-  const filterYear = document.getElementById('hsaFilterYear')?.value || '';
-
-  // Populate year filter
+  // Populate year filter — default to current year on first paint
+  const curYearStr = String(new Date().getFullYear());
   const years = [...new Set(DATA.expenses.map(e => e.date?.split('-')[0]).filter(Boolean))].sort().reverse();
   const ysel = document.getElementById('hsaFilterYear');
   if (ysel) {
-    const cur = ysel.value;
-    ysel.innerHTML = `<option value="">All Years</option>` + years.map(y => `<option ${y===cur?'selected':''}>${y}</option>`).join('');
+    const prev = ysel.value;
+    // If never set, default to current year
+    const chosen = prev || (years.includes(curYearStr) ? curYearStr : '');
+    ysel.innerHTML = `<option value="">All Years</option>` + years.map(y => `<option ${y===chosen?'selected':''}>${y}</option>`).join('');
+    if (!prev && chosen) ysel.value = chosen;
   }
+
+  const filterPerson = document.getElementById('hsaFilterPerson')?.value || '';
+  const filterYear   = ysel?.value || '';
 
   let expenses = [...DATA.expenses].sort((a,b) => b.date.localeCompare(a.date));
   if (filterPerson) expenses = expenses.filter(e => e.person === filterPerson);
-  if (filterYear) expenses = expenses.filter(e => e.date?.startsWith(filterYear));
+  if (filterYear)   expenses = expenses.filter(e => e.date?.startsWith(filterYear));
+
+  // Person filter banner
+  const banner = document.getElementById('hsaPersonBanner');
+  if (banner) {
+    if (filterPerson) {
+      const pTotal = expenses.reduce((s, e) => s + e.amount, 0);
+      const yearLabel = filterYear ? ` · ${filterYear}` : '';
+      banner.innerHTML = `<div class="person-banner">
+        ${personBadge(filterPerson)}
+        <div>
+          <div class="pb-total">${fmt$(pTotal)}</div>
+          <div class="pb-sub">${expenses.length} expense${expenses.length !== 1 ? 's' : ''}${yearLabel}</div>
+        </div>
+      </div>`;
+    } else {
+      banner.innerHTML = '';
+    }
+  }
 
   const hsa = calcHSA();
 
@@ -1646,7 +1842,7 @@ function renderHSA() {
   const tfoot = document.getElementById('hsaExpenseFoot');
 
   if (expenses.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">💊</div><p>No expenses yet. Click "+ Add Expense" to get started.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon"><i data-lucide="stethoscope" class="licon" style="width:38px;height:38px"></i></div><p>No expenses yet. Click "+ Add Expense" to get started.</p></div></td></tr>`;
     tfoot.innerHTML = '';
   } else {
     const filtTotal = expenses.reduce((s, e) => s + e.amount, 0);
@@ -1660,8 +1856,8 @@ function renderHSA() {
         <td style="font-size:12px;color:var(--gray-500);max-width:180px">${e.notes || ''}</td>
         <td>
           <div class="actions">
-            <button onclick="openEditExpense('${e.id}')" title="Edit">✏️</button>
-            <button class="del" onclick="deleteExpense('${e.id}')" title="Delete">🗑</button>
+            <button onclick="openEditExpense('${e.id}')" title="Edit"><i data-lucide="pencil" class="licon" style="width:14px;height:14px"></i></button>
+            <button class="del" onclick="deleteExpense('${e.id}')" title="Delete"><i data-lucide="trash-2" class="licon" style="width:14px;height:14px"></i></button>
           </div>
         </td>
       </tr>
@@ -1681,7 +1877,7 @@ function renderHSA() {
   const pbFoot = document.getElementById('hsaPaybackFoot');
 
   if (paybacks.length === 0) {
-    pbBody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="icon">🏦</div><p>No HSA reimbursements recorded yet.</p></div></td></tr>`;
+    pbBody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="icon"><i data-lucide="landmark" class="licon" style="width:38px;height:38px"></i></div><p>No HSA reimbursements recorded yet.</p></div></td></tr>`;
     pbFoot.innerHTML = '';
   } else {
     const pbTotal = paybacks.reduce((s, p) => s + p.amount, 0);
@@ -1692,13 +1888,14 @@ function renderHSA() {
         <td style="font-size:12px;color:var(--gray-500)">${p.notes || ''}</td>
         <td>
           <div class="actions">
-            <button class="del" onclick="deletePayback('${p.id}')" title="Delete">🗑</button>
+            <button class="del" onclick="deletePayback('${p.id}')" title="Delete"><i data-lucide="trash-2" class="licon" style="width:14px;height:14px"></i></button>
           </div>
         </td>
       </tr>
     `).join('');
     pbFoot.innerHTML = `<tr><td>Total Reimbursed</td><td class="amount">${fmt$(pbTotal)}</td><td colspan="2"></td></tr>`;
   }
+  initIcons();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1712,6 +1909,24 @@ function renderChildren() {
     .filter(e => isKid(e.person) && !e.skipChildren)
     .sort((a,b) => b.date.localeCompare(a.date));
   if (filterPerson) expenses = expenses.filter(e => e.person === filterPerson);
+
+  // Person filter banner
+  const banner = document.getElementById('childPersonBanner');
+  if (banner) {
+    if (filterPerson) {
+      const pTotal = expenses.reduce((s, e) => s + e.amount, 0);
+      const p27    = pTotal * RATE;
+      banner.innerHTML = `<div class="person-banner">
+        ${personBadge(filterPerson)}
+        <div>
+          <div class="pb-total">${fmt$(pTotal)}</div>
+          <div class="pb-sub">${expenses.length} expense${expenses.length !== 1 ? 's' : ''} · 27% = ${fmt$(p27)}</div>
+        </div>
+      </div>`;
+    } else {
+      banner.innerHTML = '';
+    }
+  }
 
   const child = calcChildren();
   const newCount = DATA.expenses.filter(e => isKid(e.person) && !e.skipChildren).length;
@@ -1735,7 +1950,7 @@ function renderChildren() {
     <div class="stat-card">
       <div class="label">Outstanding Balance</div>
       <div class="value ${child.balance > 0.005 ? 'red' : 'green'}">${fmt$(child.balance)}</div>
-      <div class="sub">${child.balance > 0.005 ? 'Deduct from next check' : 'Fully settled ✓'}</div>
+      <div class="sub">${child.balance > 0.005 ? 'Deduct from next check' : 'Fully settled'}</div>
     </div>
   `;
 
@@ -1753,8 +1968,8 @@ function renderChildren() {
       <td style="font-size:12px;color:var(--gray-500);max-width:160px">${e.notes || ''}</td>
       <td>
         <div class="actions">
-          <button onclick="openEditExpense('${e.id}')" title="Edit">✏️</button>
-          <button class="del" onclick="deleteExpense('${e.id}')" title="Delete">🗑</button>
+          <button onclick="openEditExpense('${e.id}')" title="Edit"><i data-lucide="pencil" class="licon" style="width:14px;height:14px"></i></button>
+          <button class="del" onclick="deleteExpense('${e.id}')" title="Delete"><i data-lucide="trash-2" class="licon" style="width:14px;height:14px"></i></button>
         </div>
       </td>
     </tr>
@@ -1777,7 +1992,7 @@ function renderChildren() {
   ` : '';
 
   tbody.innerHTML = newExpRows + histRow ||
-    `<tr><td colspan="8"><div class="empty-state"><div class="icon">👨‍👧‍👦</div><p>No new expenses yet. Add a child's expense to get started.</p></div></td></tr>`;
+    `<tr><td colspan="8"><div class="empty-state"><div class="icon"><i data-lucide="users" class="licon" style="width:38px;height:38px"></i></div><p>No new expenses yet. Add a child's expense to get started.</p></div></td></tr>`;
 
   const newTotal = expenses.reduce((s, e) => s + e.amount, 0);
   const new27 = expenses.reduce((s, e) => s + e.amount * RATE, 0);
@@ -1790,6 +2005,7 @@ function renderChildren() {
       <td colspan="3" style="font-size:12px;color:var(--gray-500)">${fmt$(child.paid)} paid · <strong style="color:var(--danger)">${fmt$(child.balance)} balance</strong></td>
     </tr>
   `;
+  initIcons();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1840,11 +2056,11 @@ function renderPayments() {
     </div>
     ${child.balance > SCHEDULED_PMT ? `
     <div class="notice notice-yellow" style="margin-top:12px">
-      ⚠️ Balance ($${child.balance.toFixed(2)}) exceeds $600. Write $0 check and $${(child.balance - SCHEDULED_PMT).toFixed(2)} carries forward to next payment.
+      <i data-lucide="alert-triangle" class="licon" style="width:15px;height:15px"></i> Balance ($${child.balance.toFixed(2)}) exceeds $600. Write $0 check and $${(child.balance - SCHEDULED_PMT).toFixed(2)} carries forward to next payment.
     </div>` : ''}
     ${child.balance <= 0 ? `
     <div class="notice notice-green" style="margin-top:12px">
-      ✅ No outstanding balance — write the full $600 check.
+      <i data-lucide="check-circle" class="licon" style="width:15px;height:15px"></i> No outstanding balance — write the full $600 check.
     </div>` : ''}
   `;
 
@@ -1854,7 +2070,7 @@ function renderPayments() {
   const histFoot = document.getElementById('paymentHistFoot');
 
   if (payments.length === 0) {
-    histBody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">📭</div><p>No payments recorded yet.</p></div></td></tr>`;
+    histBody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon"><i data-lucide="inbox" class="licon" style="width:38px;height:38px"></i></div><p>No payments recorded yet.</p></div></td></tr>`;
     histFoot.innerHTML = '';
   } else {
     const totalDeducted = payments.reduce((s, p) => s + p.deductedAmount, 0);
@@ -1866,7 +2082,7 @@ function renderPayments() {
         <td style="font-size:12px;color:var(--gray-500)">${p.notes || ''}</td>
         <td>
           <div class="actions">
-            <button class="del" onclick="deletePayment('${p.id}')" title="Delete">🗑</button>
+            <button class="del" onclick="deletePayment('${p.id}')" title="Delete"><i data-lucide="trash-2" class="licon" style="width:14px;height:14px"></i></button>
           </div>
         </td>
       </tr>
@@ -1880,6 +2096,7 @@ function renderPayments() {
       </tr>
     `;
   }
+  initIcons();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1913,12 +2130,13 @@ function updateExpensePreview() {
   if (isKid(person)) {
     preview.style.display = 'flex';
     preview.className = 'notice notice-blue';
-    preview.innerHTML = `ℹ️ <span>This expense will appear in both <strong>HSA Tracking</strong> and <strong>Children's Medical Expenses</strong> (27% = ex-wife's share).</span>`;
+    preview.innerHTML = `<i data-lucide="info" class="licon" style="width:15px;height:15px"></i> <span>This expense will appear in both <strong>HSA Tracking</strong> and <strong>Children's Medical Expenses</strong> (27% = ex-wife's share).</span>`;
   } else {
     preview.style.display = 'flex';
     preview.className = 'notice notice-blue';
-    preview.innerHTML = `ℹ️ <span>This is a parent expense — appears in <strong>HSA Tracking</strong> only.</span>`;
+    preview.innerHTML = `<i data-lucide="info" class="licon" style="width:15px;height:15px"></i> <span>This is a parent expense — appears in <strong>HSA Tracking</strong> only.</span>`;
   }
+  initIcons();
 }
 
 function saveExpense() {
@@ -2048,8 +2266,9 @@ function updatePaymentPreview() {
   const actual = Math.max(0, scheduled - deducted);
   document.getElementById('pmtActual').value = actual.toFixed(2);
   document.getElementById('pmtPreview').innerHTML = `
-    💳 Check = ${fmt$(scheduled)} − ${fmt$(deducted)} deducted = <strong>${fmt$(actual)}</strong>
+    <i data-lucide="credit-card" class="licon" style="width:13px;height:13px"></i> Check = ${fmt$(scheduled)} − ${fmt$(deducted)} deducted = <strong>${fmt$(actual)}</strong>
   `;
+  initIcons();
 }
 
 function savePayment() {
@@ -2189,12 +2408,15 @@ document.getElementById('currentYear').textContent = new Date().getFullYear();
 // ── Dark / Light mode ──
 function applyTheme(dark) {
   document.body.classList.toggle('dark', dark);
-  const icon = dark ? '☀️' : '🌙';
+  const iconName = dark ? 'sun' : 'moon';
   const btn = document.getElementById('themeBtn');
   const mobBtn = document.getElementById('mobThemeBtn');
-  if (btn) btn.textContent = icon;
-  if (mobBtn) mobBtn.textContent = icon;
+  if (btn) btn.innerHTML = li(iconName, 18);
+  if (mobBtn) mobBtn.innerHTML = li(iconName, 18);
+  initIcons();
   localStorage.setItem('medTracker_theme', dark ? 'dark' : 'light');
+  // Re-render charts so colors update for dark/light mode
+  if (currentPage() === 'dashboard') renderDashboardCharts();
 }
 function toggleTheme() {
   applyTheme(!document.body.classList.contains('dark'));
@@ -2213,6 +2435,7 @@ function closeSidebar() {
 }
 
 renderDashboard();
+initIcons();
 
 // Immediately try to pull latest data from GitHub (if configured).
 // The app renders from localStorage first so there's no blank-screen wait.
