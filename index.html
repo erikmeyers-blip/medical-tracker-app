@@ -26,32 +26,72 @@
     --gray-900: #111827;
     --sidebar-width: 220px;
     --font: 'Segoe UI', system-ui, sans-serif;
+    /* theme tokens */
+    --body-bg: #f3f4f6;
+    --card-bg: #ffffff;
+    --input-bg: #ffffff;
+    --border-color: #e5e7eb;
+    --sidebar-bg: #1e2a3a;
+    --sidebar-hover: #263446;
+    --sidebar-active: #1d3a5f;
+  }
+
+  /* ── Dark mode ── */
+  body.dark {
+    --primary: #3b82f6;
+    --primary-light: #1e3a5f;
+    --primary-hover: #60a5fa;
+    --success: #4ade80;
+    --success-light: #14532d;
+    --warning: #fbbf24;
+    --warning-light: #451a03;
+    --danger: #f87171;
+    --danger-light: #450a0a;
+    --gray-50: #1e2432;
+    --gray-100: #252d3d;
+    --gray-200: #2d3748;
+    --gray-300: #4a5568;
+    --gray-500: #94a3b8;
+    --gray-700: #cbd5e1;
+    --gray-900: #f1f5f9;
+    --body-bg: #141b27;
+    --card-bg: #1a2234;
+    --input-bg: #1e2a3a;
+    --border-color: #2d3748;
+    --sidebar-bg: #0d1526;
+    --sidebar-hover: #1a2234;
+    --sidebar-active: #1e3a5f;
   }
 
   body {
     font-family: var(--font);
-    background: var(--gray-100);
+    background: var(--body-bg);
     color: var(--gray-900);
     display: flex;
     min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
   }
 
   /* ── Sidebar ── */
   #sidebar {
     width: var(--sidebar-width);
-    background: #1e2a3a;
+    background: var(--sidebar-bg);
     color: #cbd5e1;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     position: fixed;
     top: 0; left: 0; bottom: 0;
-    z-index: 100;
+    z-index: 200;
+    transition: transform 0.3s ease, background 0.2s;
   }
 
   #sidebar .logo {
     padding: 20px 16px 16px;
     border-bottom: 1px solid #2d3f55;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
   }
   #sidebar .logo h2 {
     font-size: 14px;
@@ -65,7 +105,7 @@
     margin-top: 2px;
   }
 
-  #sidebar nav { flex: 1; padding: 12px 0; }
+  #sidebar nav { flex: 1; padding: 12px 0; overflow-y: auto; }
 
   #sidebar nav a {
     display: flex;
@@ -79,8 +119,8 @@
     transition: all 0.15s;
     cursor: pointer;
   }
-  #sidebar nav a:hover { background: #263446; color: #e2e8f0; }
-  #sidebar nav a.active { background: #1d3a5f; color: #93c5fd; border-left-color: #3b82f6; }
+  #sidebar nav a:hover { background: var(--sidebar-hover); color: #e2e8f0; }
+  #sidebar nav a.active { background: var(--sidebar-active); color: #93c5fd; border-left-color: #3b82f6; }
   #sidebar nav a .icon { font-size: 16px; width: 20px; text-align: center; }
 
   #sidebar .sidebar-section {
@@ -119,12 +159,77 @@
   }
   #sidebar .add-btn:hover { background: #1d4ed8; }
 
+  /* Theme toggle button in sidebar */
+  .theme-toggle {
+    background: none;
+    border: 1px solid #2d3f55;
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .theme-toggle:hover { background: var(--sidebar-hover); color: #e2e8f0; }
+
+  /* Mobile hamburger */
+  .mobile-topbar {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 52px;
+    background: var(--sidebar-bg);
+    color: #f1f5f9;
+    z-index: 150;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .mobile-topbar .hamburger {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+  }
+  .mobile-topbar .title {
+    font-size: 14px;
+    font-weight: 700;
+    flex: 1;
+  }
+  .mobile-topbar .mob-theme-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  /* Sidebar overlay for mobile */
+  #sidebarOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 199;
+  }
+  #sidebarOverlay.active { display: block; }
+
   /* ── Main ── */
   #main {
     margin-left: var(--sidebar-width);
     flex: 1;
     padding: 28px;
     max-width: calc(100vw - var(--sidebar-width));
+    transition: margin-left 0.3s;
   }
 
   .page { display: none; }
@@ -144,11 +249,12 @@
 
   /* ── Cards ── */
   .card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--border-color);
     padding: 20px;
     margin-bottom: 20px;
+    transition: background 0.2s, border-color 0.2s;
   }
   .card-title {
     font-size: 14px;
@@ -163,15 +269,16 @@
   /* ── Stats grid ── */
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 16px;
     margin-bottom: 24px;
   }
   .stat-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--border-color);
     padding: 18px 20px;
+    transition: background 0.2s, border-color 0.2s;
   }
   .stat-card .label { font-size: 12px; color: var(--gray-500); font-weight: 500; margin-bottom: 6px; }
   .stat-card .value { font-size: 26px; font-weight: 700; color: var(--gray-900); }
@@ -181,7 +288,7 @@
   .stat-card .sub { font-size: 11.5px; color: var(--gray-500); margin-top: 4px; }
 
   /* ── Tables ── */
-  .table-wrap { overflow-x: auto; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   thead th {
     background: var(--gray-50);
@@ -241,11 +348,12 @@
 
   /* ── Payment Calc ── */
   .payment-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
-    border: 1px solid var(--gray-200);
+    border: 1px solid var(--border-color);
     padding: 24px;
     margin-bottom: 20px;
+    transition: background 0.2s, border-color 0.2s;
   }
   .payment-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: var(--gray-700); }
 
@@ -291,7 +399,8 @@
     font-size: 13.5px;
     font-family: var(--font);
     color: var(--gray-900);
-    transition: border-color 0.15s, box-shadow 0.15s;
+    background: var(--input-bg);
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.2s;
   }
   input:focus, select:focus, textarea:focus {
     outline: none;
@@ -317,7 +426,7 @@
   .btn-success { background: var(--success); color: white; }
   .btn-success:hover { background: #15803d; }
   .btn-outline {
-    background: white;
+    background: var(--card-bg);
     color: var(--gray-700);
     border: 1px solid var(--gray-300);
   }
@@ -331,32 +440,34 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.45);
+    background: rgba(0,0,0,0.55);
     z-index: 1000;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 16px;
   }
   .modal-bg.open { display: flex; }
 
   .modal {
-    background: white;
+    background: var(--card-bg);
     border-radius: 12px;
-    padding: 28px;
+    padding: 24px;
     width: 100%;
     max-width: 560px;
-    max-height: 90vh;
+    max-height: 92vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    transition: background 0.2s;
   }
-  .modal h2 { font-size: 17px; font-weight: 700; margin-bottom: 20px; }
+  .modal h2 { font-size: 17px; font-weight: 700; margin-bottom: 20px; color: var(--gray-900); }
   .modal-footer {
     display: flex;
     gap: 10px;
     justify-content: flex-end;
     margin-top: 22px;
     padding-top: 18px;
-    border-top: 1px solid var(--gray-200);
+    border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
   }
 
   /* ── Notice banners ── */
@@ -427,15 +538,107 @@
     border-color: var(--gray-200);
   }
   .filter-bar label { font-size: 12px; color: var(--gray-500); }
+
+  /* ── Dark mode badge overrides ── */
+  body.dark .badge-david   { background: #1e3a5f; color: #93c5fd; }
+  body.dark .badge-coraline{ background: #4a1942; color: #f9a8d4; }
+  body.dark .badge-erik    { background: #14532d; color: #86efac; }
+  body.dark .badge-wendy   { background: #3b0764; color: #d8b4fe; }
+  body.dark .badge-self    { background: #1f2937; color: #9ca3af; }
+  body.dark .badge-green   { background: var(--success-light); color: var(--success); }
+  body.dark .badge-red     { background: var(--danger-light);  color: var(--danger); }
+  body.dark .badge-yellow  { background: var(--warning-light); color: var(--warning); }
+
+  body.dark tfoot td { background: var(--gray-50); border-top-color: var(--border-color); }
+  body.dark .section-divider { border-color: var(--border-color); }
+  body.dark .tooltip-tag { background: var(--gray-200); color: var(--gray-500); }
+  body.dark .running-balance { color: var(--gray-500); }
+  body.dark label { color: var(--gray-700); }
+
+  /* ── Mobile responsive ── */
+  @media (max-width: 700px) {
+    :root { --sidebar-width: 0px; }
+
+    #sidebar {
+      width: 240px;
+      transform: translateX(-240px);
+    }
+    #sidebar.open {
+      transform: translateX(0);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+    }
+    /* Close button inside sidebar on mobile */
+    .sidebar-close {
+      display: flex !important;
+    }
+
+    .mobile-topbar { display: flex; }
+
+    #main {
+      margin-left: 0;
+      max-width: 100vw;
+      padding: 16px;
+      padding-top: 68px; /* clear the fixed topbar */
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .stat-card { padding: 14px 16px; }
+    .stat-card .value { font-size: 22px; }
+
+    .form-grid,
+    .form-grid.three { grid-template-columns: 1fr; }
+
+    .two-col { grid-template-columns: 1fr; }
+
+    .page-header { flex-direction: column; align-items: flex-start; }
+    .page-header .actions { width: 100%; }
+
+    .check-display { padding: 20px; }
+    .check-display .check-amount { font-size: 36px; }
+
+    .modal { padding: 18px; border-radius: 10px; }
+    .modal-footer { justify-content: stretch; }
+    .modal-footer .btn { flex: 1; justify-content: center; }
+
+    #exportImport { flex-direction: column; }
+    #exportImport .btn { width: 100%; justify-content: center; }
+
+    /* Show table action buttons more easily on touch */
+    td .actions button { padding: 4px 8px; }
+
+    .filter-bar { gap: 6px; }
+    .filter-bar select, .filter-bar input { font-size: 13px; }
+  }
+
+  @media (max-width: 420px) {
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Hide sidebar close button on desktop */
+  .sidebar-close { display: none; }
 </style>
 </head>
 <body>
 
+<!-- Mobile top bar (visible only on small screens) -->
+<div class="mobile-topbar">
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <span class="title">Medical Expense Tracker</span>
+  <button class="mob-theme-btn" onclick="toggleTheme()" id="mobThemeBtn">🌙</button>
+</div>
+<div id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
 <div id="sidebar">
   <div class="logo">
-    <h2>Medical Expense<br>Tracker</h2>
-    <p id="currentYear">2026</p>
+    <div>
+      <h2>Medical Expense<br>Tracker</h2>
+      <p id="currentYear">2026</p>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Toggle light/dark mode">🌙</button>
   </div>
   <nav>
     <div class="sidebar-section">Overview</div>
@@ -459,6 +662,10 @@
       <span class="icon">⚙️</span> GitHub Sync
     </a>
   </nav>
+  <button class="sidebar-close" onclick="closeSidebar()"
+    style="background:none;border:none;color:#94a3b8;font-size:12px;padding:8px 16px;cursor:pointer;text-align:left;">
+    ✕ Close menu
+  </button>
   <div class="sync-status" id="syncStatus">○ GitHub not configured</div>
   <button class="add-btn" onclick="openAddExpense()">
     ＋ Add Expense
@@ -923,20 +1130,36 @@ async function ghAPI(method, path, body) {
   return json;
 }
 
+function toBase64(str) {
+  // Reliably encode a UTF-8 string to base64 for the GitHub API
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  bytes.forEach(b => binary += String.fromCharCode(b));
+  return btoa(binary);
+}
+
+function fromBase64(b64) {
+  const binary = atob(b64.replace(/\s/g, ''));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
 async function loadFromGitHub() {
   if (!isGHConfigured()) { setSyncStatus('offline'); return; }
   setSyncStatus('syncing');
   try {
     const file = await ghAPI('GET', GH_DATA_FILE);
-    const content = JSON.parse(atob(file.content.replace(/\n/g, '')));
+    const content = JSON.parse(fromBase64(file.content));
     DATA = content;
     DATA._sha = file.sha;
     localStorage.setItem(STORE_KEY, JSON.stringify(content));
     setSyncStatus('synced');
     renderPage(currentPage());
   } catch(e) {
-    if (e.message.includes('Not Found') || e.message.includes('404')) {
-      // File doesn't exist yet in repo — push current data to create it
+    console.error('GitHub load error:', e.message);
+    if (e.message.includes('Not Found') || e.message.toLowerCase().includes('empty') || e.message.includes('404')) {
+      console.log('data.json not found — creating it now...');
       await pushToGitHub(DATA);
     } else {
       setSyncStatus('error', e.message);
@@ -948,26 +1171,33 @@ async function pushToGitHub(data) {
   if (!isGHConfigured()) return;
   setSyncStatus('syncing');
   const { _sha, ...clean } = data;
+  const jsonStr = JSON.stringify(clean, null, 2);
   const body = {
     message: `Update ${new Date().toLocaleString('en-US', {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`,
-    content: btoa(unescape(encodeURIComponent(JSON.stringify(clean, null, 2)))),
+    content: toBase64(jsonStr),
   };
   if (_sha) body.sha = _sha;
+  console.log('Pushing to GitHub, sha:', _sha || 'none (new file)');
   try {
     const result = await ghAPI('PUT', GH_DATA_FILE, body);
     DATA._sha = result.content.sha;
+    console.log('Push success, new sha:', DATA._sha);
     setSyncStatus('synced');
   } catch(e) {
-    if (e.message.includes('conflict') || e.message.includes('422')) {
-      // SHA is stale — fetch latest then retry
+    console.error('GitHub push error:', e.message);
+    if (e.message.includes('conflict') || e.message.includes('does not match') || e.message.includes('422')) {
+      // SHA stale — fetch current sha and retry once
       try {
         const file = await ghAPI('GET', GH_DATA_FILE);
-        DATA._sha = file.sha;
         body.sha = file.sha;
+        DATA._sha = file.sha;
         const result2 = await ghAPI('PUT', GH_DATA_FILE, body);
         DATA._sha = result2.content.sha;
         setSyncStatus('synced');
-      } catch(e2) { setSyncStatus('error', e2.message); }
+      } catch(e2) {
+        console.error('GitHub retry error:', e2.message);
+        setSyncStatus('error', e2.message);
+      }
     } else {
       setSyncStatus('error', e.message);
     }
@@ -1058,6 +1288,7 @@ function showPage(name) {
   document.getElementById('page-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
   renderPage(name);
+  closeSidebar(); // auto-close on mobile after nav
 }
 
 function renderPage(name) {
@@ -1789,6 +2020,33 @@ function exportCSV() {
 // ═══════════════════════════════════════════════════════════
 
 document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+// ── Dark / Light mode ──
+function applyTheme(dark) {
+  document.body.classList.toggle('dark', dark);
+  const icon = dark ? '☀️' : '🌙';
+  const btn = document.getElementById('themeBtn');
+  const mobBtn = document.getElementById('mobThemeBtn');
+  if (btn) btn.textContent = icon;
+  if (mobBtn) mobBtn.textContent = icon;
+  localStorage.setItem('medTracker_theme', dark ? 'dark' : 'light');
+}
+function toggleTheme() {
+  applyTheme(!document.body.classList.contains('dark'));
+}
+// Apply saved theme immediately
+applyTheme(localStorage.getItem('medTracker_theme') === 'dark');
+
+// ── Mobile sidebar ──
+function toggleSidebar() {
+  const open = document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('active', open);
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
 renderDashboard();
 
 // Immediately try to pull latest data from GitHub (if configured).
