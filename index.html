@@ -841,7 +841,7 @@
     <div class="page-header">
       <div>
         <h1>Children's Medical Expenses</h1>
-        <p>David &amp; Coraline — ex-wife owes 27% of each expense</p>
+        <p>David &amp; Coraline — co-parent owes 27% of each expense</p>
       </div>
       <button class="btn btn-primary btn-sm" onclick="openAddExpense('children')"><i data-lucide="plus" class="licon" style="width:13px;height:13px"></i> Add Expense</button>
     </div>
@@ -880,7 +880,7 @@
     <div class="page-header">
       <div>
         <h1>Payment Calculator</h1>
-        <p>Calculate check amount for 15th &amp; last-of-month payments to ex-wife</p>
+        <p>Calculate check amount for 15th &amp; last-of-month payments to co-parent</p>
       </div>
       <button class="btn btn-success btn-sm" onclick="openRecordPayment()"><i data-lucide="plus" class="licon" style="width:13px;height:13px"></i> Record Payment</button>
     </div>
@@ -990,12 +990,12 @@
   </div>
 </div>
 
-<!-- Record Payment to Ex-Wife Modal -->
+<!-- Record Payment to Co-Parent Modal -->
 <div class="modal-bg" id="modalRecordPayment">
   <div class="modal">
-    <h2>Record Payment to Ex-Wife</h2>
+    <h2>Record Payment to Co-Parent</h2>
     <p style="font-size:13px;color:var(--gray-500);margin-bottom:18px">
-      Record the check you wrote. Scheduled amount is $600; the actual amount is $600 minus the 27% medical balance she owes you.
+      Record the check you wrote. Scheduled amount is $600; the actual amount is $600 minus the 27% medical balance co-parent owes you.
     </p>
     <div class="form-grid">
       <div class="form-group">
@@ -1636,7 +1636,7 @@ function renderDashboard() {
       <div class="sub">${fmt$(hsa.reimbursed)} reimbursed so far</div>
     </div>
     <div class="stat-card">
-      <div class="label">Ex-Wife's 27% Balance</div>
+      <div class="label">Co-Parent's 27% Balance</div>
       <div class="value ${child.balance > 0 ? 'red' : 'green'}">${fmt$(child.balance)}</div>
       <div class="sub">${fmt$(child.owed27)} total 27% owed</div>
     </div>
@@ -2034,7 +2034,7 @@ function renderPayments() {
       <span class="calc-value">${fmt$(SCHEDULED_PMT)}</span>
     </div>
     <div class="calc-row">
-      <span class="calc-label">Total 27% she owes (all time)</span>
+      <span class="calc-label">Total 27% co-parent owes (all time)</span>
       <span class="calc-value">${fmt$(child.owed27)}</span>
     </div>
     <div class="calc-row">
@@ -2042,7 +2042,7 @@ function renderPayments() {
       <span class="calc-value amount-green">− ${fmt$(child.paid)}</span>
     </div>
     <div class="calc-row">
-      <span class="calc-label">Outstanding balance she owes</span>
+      <span class="calc-label">Outstanding balance co-parent owes</span>
       <span class="calc-value amount-red">${fmt$(child.balance)}</span>
     </div>
     <div style="height:1px;background:var(--gray-200);margin:4px 0"></div>
@@ -2130,7 +2130,7 @@ function updateExpensePreview() {
   if (isKid(person)) {
     preview.style.display = 'flex';
     preview.className = 'notice notice-blue';
-    preview.innerHTML = `<i data-lucide="info" class="licon" style="width:15px;height:15px"></i> <span>This expense will appear in both <strong>HSA Tracking</strong> and <strong>Children's Medical Expenses</strong> (27% = ex-wife's share).</span>`;
+    preview.innerHTML = `<i data-lucide="info" class="licon" style="width:15px;height:15px"></i> <span>This expense will appear in both <strong>HSA Tracking</strong> and <strong>Children's Medical Expenses</strong> (27% = co-parent's share).</span>`;
   } else {
     preview.style.display = 'flex';
     preview.className = 'notice notice-blue';
