@@ -1380,11 +1380,30 @@ async function loadFromGitHub() {
   try {
     const file = await ghAPI('GET', GH_DATA_FILE);
     const content = JSON.parse(fromBase64(file.content));
+
+    // Restore any SEED_DATA entries missing from GitHub (e.g. lost due to overwrite conflict)
+    const existingExpIds = new Set((content.expenses || []).map(e => e.id));
+    const missingExps = SEED_DATA.expenses.filter(e => !existingExpIds.has(e.id));
+    if (missingExps.length > 0) {
+      console.log(`Restoring ${missingExps.length} missing seed expense(s) from SEED_DATA`);
+      content.expenses = [...missingExps, ...(content.expenses || [])];
+    }
+    const existingPbIds = new Set((content.hsaPaybacks || []).map(e => e.id));
+    const missingPbs = SEED_DATA.hsaPaybacks.filter(e => !existingPbIds.has(e.id));
+    if (missingPbs.length > 0) {
+      content.hsaPaybacks = [...missingPbs, ...(content.hsaPaybacks || [])];
+    }
+
     DATA = content;
     DATA._sha = file.sha;
     localStorage.setItem(STORE_KEY, JSON.stringify(content));
     setSyncStatus('synced');
     renderPage(currentPage());
+
+    // Push restored data back to GitHub if anything was missing
+    if (missingExps.length > 0 || missingPbs.length > 0) {
+      await pushToGitHub(DATA);
+    }
   } catch(e) {
     console.error('GitHub load error:', e.message);
     if (e.message.includes('Not Found') || e.message.toLowerCase().includes('empty') || e.message.includes('404')) {
@@ -1415,14 +1434,33 @@ async function pushToGitHub(data) {
   } catch(e) {
     console.error('GitHub push error:', e.message);
     if (e.message.includes('conflict') || e.message.includes('does not match') || e.message.includes('422')) {
-      // SHA stale — fetch current sha and retry once
+      // SHA stale — fetch current GitHub data, merge local-only entries, then push merged
       try {
         const file = await ghAPI('GET', GH_DATA_FILE);
-        body.sha = file.sha;
-        DATA._sha = file.sha;
-        const result2 = await ghAPI('PUT', GH_DATA_FILE, body);
-        DATA._sha = result2.content.sha;
+        const ghData = JSON.parse(fromBase64(file.content));
+        // Find entries that exist locally but not on GitHub (new entries added this session)
+        const ghExpIds = new Set((ghData.expenses || []).map(e => e.id));
+        const newExps = (data.expenses || []).filter(e => !ghExpIds.has(e.id));
+        const ghPmtIds = new Set((ghData.childPayments || []).map(e => e.id));
+        const newPmts = (data.childPayments || []).filter(e => !ghPmtIds.has(e.id));
+        const ghPbIds = new Set((ghData.hsaPaybacks || []).map(e => e.id));
+        const newPbs = (data.hsaPaybacks || []).filter(e => !ghPbIds.has(e.id));
+        const merged = {
+          ...ghData,
+          expenses:      [...(ghData.expenses || []),      ...newExps],
+          childPayments: [...(ghData.childPayments || []), ...newPmts],
+          hsaPaybacks:   [...(ghData.hsaPaybacks || []),   ...newPbs],
+        };
+        const mergedBody = {
+          message: body.message,
+          content: toBase64(JSON.stringify(merged, null, 2)),
+          sha: file.sha,
+        };
+        const result2 = await ghAPI('PUT', GH_DATA_FILE, mergedBody);
+        DATA = { ...merged, _sha: result2.content.sha };
+        localStorage.setItem(STORE_KEY, JSON.stringify(merged));
         setSyncStatus('synced');
+        renderPage(currentPage());
       } catch(e2) {
         console.error('GitHub retry error:', e2.message);
         setSyncStatus('error', e2.message);
