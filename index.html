@@ -1133,6 +1133,7 @@ const SEED_DATA = {
     { id:'s09', date:'2026-02-23', person:'Coraline', provider:'Prescription',           amount:44.48,  receiptName:'Coraline prescription',             notes:'Imported from 2026 HSA tracker' },
     { id:'s10', date:'2026-02-27', person:'Erik',     provider:'Wellspring',             amount:168.16, receiptName:'Wellspring',                        notes:'Imported from 2026 HSA tracker', skipChildren:true },
     { id:'s11', date:'2026-03-22', person:'Coraline', provider:'HealthPartners Therapy', amount:635.99, receiptName:'Coraline health partners therapy',  notes:'Imported from 2026 HSA tracker' },
+    { id:'s12', date:'2026-03-22', person:'Coraline', provider:'Melrose',               amount:635.99, receiptName:'health partners dashboard',           notes:'Imported from 2026 HSA tracker' },
     // ── Historical children's expenses 2020–2025 (from Children's medical reimbursement tracking.xlsx) ──
     { id:'h_001', date:'2020-05-15', person:'David',    provider:'Minnesota Orthodontics', amount:149.00,  receiptName:'DC MINNESOTA OR 507-6454222 MA R',               notes:'Historical import' },
     { id:'h_002', date:'2020-05-14', person:'David',    provider:'Family Innovations',     amount:120.00,  receiptName:'Family Innovations',                             notes:'Historical import' },
@@ -1300,6 +1301,7 @@ const SEED_DATA = {
   hsaPaybacks: [
     { id:'pb1', date:'2026-01-31', amount:594.98,  notes:'HSA reimbursement — imported from 2026 tracker' },
     { id:'pb2', date:'2026-03-16', amount:1027.36, notes:'HSA reimbursement — imported from 2026 tracker' },
+    { id:'pb3', date:'2026-03-27', amount:2095.06, notes:'HSA reimbursement — imported from 2026 tracker' },
   ],
   childPayments: [],
   // childrenOpeningBalance holds the residual 27% balance not covered by the
@@ -1384,11 +1386,20 @@ async function loadFromGitHub() {
     // Restore any SEED_DATA entries missing from GitHub (e.g. lost due to overwrite conflict)
     const existingExpIds = new Set((content.expenses || []).map(e => e.id));
     const missingExps = SEED_DATA.expenses.filter(e => !existingExpIds.has(e.id));
-    const missingHEntries = missingExps.filter(e => e.id.startsWith('h_'));
     if (missingExps.length > 0) {
       console.log(`Restoring ${missingExps.length} missing seed expense(s) from SEED_DATA`);
       content.expenses = [...missingExps, ...(content.expenses || [])];
     }
+    // Sync skipChildren flag from SEED_DATA for all seed entries — GitHub may have
+    // drifted (e.g. kid entries incorrectly marked skipChildren:true, hiding them from children's calc)
+    let skipChildrenFixed = 0;
+    SEED_DATA.expenses.forEach(seedExp => {
+      const existing = content.expenses.find(e => e.id === seedExp.id);
+      if (!existing) return;
+      if (seedExp.skipChildren && !existing.skipChildren) { existing.skipChildren = true; skipChildrenFixed++; }
+      else if (!seedExp.skipChildren && existing.skipChildren) { delete existing.skipChildren; skipChildrenFixed++; }
+    });
+    if (skipChildrenFixed > 0) console.log(`Fixed skipChildren flag on ${skipChildrenFixed} seed expense(s)`);
     // childrenOpeningBalance (total27pct + paid) are fixed seed values — never user-editable.
     // Always sync them from SEED_DATA so GitHub drift (e.g. inflated total27pct from a
     // prior overwrite bug) doesn't cause double-counting with the h_ entries.
@@ -1405,8 +1416,8 @@ async function loadFromGitHub() {
     setSyncStatus('synced');
     renderPage(currentPage());
 
-    // Push restored data back to GitHub if anything was missing
-    if (missingExps.length > 0 || missingPbs.length > 0) {
+    // Push restored data back to GitHub if anything was missing or fixed
+    if (missingExps.length > 0 || missingPbs.length > 0 || skipChildrenFixed > 0) {
       await pushToGitHub(DATA);
     }
   } catch(e) {
@@ -1609,8 +1620,12 @@ function isKid(person) { return person === 'David' || person === 'Coraline'; }
 //  CALCULATIONS
 // ═══════════════════════════════════════════════════════════
 
+// h_ entries are historical children's expenses imported for co-parent tracking only —
+// they are not HSA-eligible (those years' reimbursements happened outside this app).
+function isHSAEligible(e) { return !e.id.startsWith('h_'); }
+
 function calcHSA() {
-  const total = DATA.expenses.reduce((s, e) => s + e.amount, 0);
+  const total = DATA.expenses.filter(isHSAEligible).reduce((s, e) => s + e.amount, 0);
   const reimbursed = DATA.hsaPaybacks.reduce((s, p) => s + p.amount, 0);
   return { total, reimbursed, balance: total - reimbursed };
 }
@@ -1839,7 +1854,7 @@ function renderHSA() {
   const filterPerson = document.getElementById('hsaFilterPerson')?.value || '';
   const filterYear   = ysel?.value || '';
 
-  let expenses = [...DATA.expenses].sort((a,b) => b.date.localeCompare(a.date));
+  let expenses = [...DATA.expenses].filter(isHSAEligible).sort((a,b) => b.date.localeCompare(a.date));
   if (filterPerson) expenses = expenses.filter(e => e.person === filterPerson);
   if (filterYear)   expenses = expenses.filter(e => e.date?.startsWith(filterYear));
 
