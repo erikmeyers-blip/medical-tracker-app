@@ -1384,10 +1384,15 @@ async function loadFromGitHub() {
     // Restore any SEED_DATA entries missing from GitHub (e.g. lost due to overwrite conflict)
     const existingExpIds = new Set((content.expenses || []).map(e => e.id));
     const missingExps = SEED_DATA.expenses.filter(e => !existingExpIds.has(e.id));
+    const missingHEntries = missingExps.filter(e => e.id.startsWith('h_'));
     if (missingExps.length > 0) {
       console.log(`Restoring ${missingExps.length} missing seed expense(s) from SEED_DATA`);
       content.expenses = [...missingExps, ...(content.expenses || [])];
     }
+    // childrenOpeningBalance (total27pct + paid) are fixed seed values — never user-editable.
+    // Always sync them from SEED_DATA so GitHub drift (e.g. inflated total27pct from a
+    // prior overwrite bug) doesn't cause double-counting with the h_ entries.
+    content.childrenOpeningBalance = JSON.parse(JSON.stringify(SEED_DATA.childrenOpeningBalance));
     const existingPbIds = new Set((content.hsaPaybacks || []).map(e => e.id));
     const missingPbs = SEED_DATA.hsaPaybacks.filter(e => !existingPbIds.has(e.id));
     if (missingPbs.length > 0) {
