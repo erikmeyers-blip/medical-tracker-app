@@ -755,6 +755,20 @@
       </div>
     </div>
 
+    <div class="card chart-card" style="margin-bottom:20px">
+      <div class="card-title" style="justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:8px">
+          <i data-lucide="trending-up" class="licon" style="width:15px;height:15px"></i>
+          Cumulative Spending <span id="trendYearLabel" style="font-size:11px;font-weight:400;color:var(--gray-500)"></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;font-size:12px;color:var(--gray-500)">
+          <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:22px;height:3px;background:#10b981;border-radius:2px"></span>This year</span>
+          <span id="trendPrevLegend" style="display:none;align-items:center;gap:5px"><span style="display:inline-block;width:22px;height:2px;background:var(--gray-300);border-radius:2px;border-top:2px dashed var(--gray-300)"></span><span id="trendPrevLabel">Prior year</span></span>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:230px"><canvas id="chartTrend"></canvas></div>
+    </div>
+
     <div class="two-col">
       <div class="card">
         <div class="card-title"><i data-lucide="list" class="licon" style="width:15px;height:15px"></i> Recent Expenses</div>
@@ -858,6 +872,9 @@
             <option>David</option>
             <option>Coraline</option>
           </select>
+          <select id="childFilterYear" onchange="renderChildren()">
+            <option value="">All Years</option>
+          </select>
         </div>
       </div>
       <div class="table-wrap">
@@ -952,6 +969,12 @@
       <div class="form-group full">
         <label>Notes</label>
         <textarea id="expNotes" placeholder="Optional details..."></textarea>
+      </div>
+      <div class="form-group full">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400">
+          <input type="checkbox" id="expHistorical" style="width:15px;height:15px;cursor:pointer;flex-shrink:0">
+          <span>Historical reference only <span style="color:var(--gray-500)">(prior year — visible in table but won't affect current HSA balance)</span></span>
+        </label>
       </div>
     </div>
     <div id="expPreview" class="notice notice-blue" style="display:none;margin-top:16px"></div>
@@ -1061,6 +1084,12 @@
       <div class="form-group full">
         <label>Notes</label>
         <textarea id="editExpNotes"></textarea>
+      </div>
+      <div class="form-group full">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400">
+          <input type="checkbox" id="editExpHistorical" style="width:15px;height:15px;cursor:pointer;flex-shrink:0">
+          <span>Historical reference only <span style="color:var(--gray-500)">(prior year — visible in table but won't affect current HSA balance)</span></span>
+        </label>
       </div>
     </div>
     <div class="modal-footer">
@@ -1297,6 +1326,30 @@ const SEED_DATA = {
     { id:'h_160', date:'2025-06-20', person:'David',    provider:'Edina Eye',              amount:300.00,  receiptName:'David glasses',                                  notes:'Historical import' },
     { id:'h_161', date:'2025-08-23', person:'David',    provider:'Walgreens',              amount:12.21,   receiptName:'Walgreens meds David',                           notes:'Historical import' },
     { id:'h_162', date:'2025-08-27', person:'David',    provider:'Walgreens',              amount:10.00,   receiptName:'David Walgreens',                                notes:'Historical import' },
+
+  // ── 2024 personal HSA (Erik/Wendy) — reference only, no 2026+ balance impact ──
+  { id:'ph24_01', date:'2024-01-15', person:'Wendy', provider:'Podiatrist',              amount:250.00,  receiptName:'',                     notes:'2024 historical — Wendy foot',          hsaHistorical:true },
+  { id:'ph24_02', date:'2024-01-24', person:'Wendy', provider:'CVS',                    amount:6.54,    receiptName:'',                     notes:'2024 historical — Wendy scripts',       hsaHistorical:true },
+  { id:'ph24_03', date:'2024-01-26', person:'Erik',  provider:'CVS',                    amount:20.00,   receiptName:'',                     notes:'2024 historical — Erik scripts',        hsaHistorical:true },
+  { id:'ph24_04', date:'2024-03-06', person:'Wendy', provider:'CVS',                    amount:6.39,    receiptName:'',                     notes:'2024 historical — Wendy scripts',       hsaHistorical:true },
+  { id:'ph24_05', date:'2024-04-02', person:'Erik',  provider:'Edina Eye',              amount:10.00,   receiptName:'',                     notes:'2024 historical — Eye exam',            hsaHistorical:true },
+  { id:'ph24_06', date:'2024-04-02', person:'Wendy', provider:'Edina Eye',              amount:10.00,   receiptName:'',                     notes:'2024 historical — Eye exam',            hsaHistorical:true },
+  { id:'ph24_07', date:'2024-04-02', person:'Erik',  provider:'Edina Eye',              amount:363.00,  receiptName:'',                     notes:'2024 historical — Glasses',             hsaHistorical:true },
+  { id:'ph24_08', date:'2024-04-02', person:'Wendy', provider:'Edina Eye',              amount:215.00,  receiptName:'',                     notes:'2024 historical — Glasses',             hsaHistorical:true },
+  { id:'ph24_09', date:'2024-05-17', person:'Erik',  provider:'Medical Bills',          amount:151.17,  receiptName:'',                     notes:'2024 historical — Erik dr bills',       hsaHistorical:true },
+  { id:'ph24_10', date:'2024-05-28', person:'Erik',  provider:'HealthPartners',         amount:462.01,  receiptName:'',                     notes:'2024 historical — Erik urgent care',    hsaHistorical:true },
+  { id:'ph24_11', date:'2024-06-16', person:'Erik',  provider:'CVS',                    amount:6.54,    receiptName:'',                     notes:'2024 historical — Erik scripts',        hsaHistorical:true },
+  { id:'ph24_12', date:'2024-06-10', person:'Wendy', provider:'Therapy',                amount:70.00,   receiptName:'',                     notes:'2024 historical — Wendy therapy',       hsaHistorical:true },
+
+  // ── 2025 personal HSA (Erik/Wendy) — reference only, no 2026+ balance impact ──
+  { id:'ph25_01', date:'2025-01-05', person:'Erik',  provider:'CVS',                    amount:96.72,   receiptName:'CVS_96.72_5jan2025',   notes:'2025 historical — Erik scripts',        hsaHistorical:true },
+  { id:'ph25_02', date:'2025-01-07', person:'Erik',  provider:'CVS',                    amount:8.29,    receiptName:'',                     notes:'2025 historical — scripts',             hsaHistorical:true },
+  { id:'ph25_03', date:'2025-01-10', person:'Erik',  provider:'Walgreens',              amount:41.38,   receiptName:'',                     notes:'2025 historical — Walgreens cane',      hsaHistorical:true },
+  { id:'ph25_04', date:'2025-02-14', person:'Erik',  provider:'Tria Health',            amount:1628.53, receiptName:'',                     notes:'2025 historical — Tria injections',     hsaHistorical:true },
+  { id:'ph25_05', date:'2025-02-14', person:'Erik',  provider:'Dr. Kenning',            amount:44.92,   receiptName:'',                     notes:'2025 historical — Dr Kenning e-visit',  hsaHistorical:true },
+  { id:'ph25_06', date:'2025-03-21', person:'Erik',  provider:'HealthPartners',         amount:714.98,  receiptName:'',                     notes:'2025 historical — HP Erik and Coraline combined', hsaHistorical:true },
+  { id:'ph25_07', date:'2025-03-21', person:'Erik',  provider:'HealthPartners',         amount:233.44,  receiptName:'',                     notes:'2025 historical — Erik urgent care',    hsaHistorical:true },
+  { id:'ph25_08', date:'2025-06-20', person:'Erik',  provider:'Edina Eye',              amount:802.75,  receiptName:'',                     notes:'2025 historical — Family glasses (David\'s $300 tracked in children\'s history)', hsaHistorical:true },
   ],
   hsaPaybacks: [
     { id:'pb1', date:'2026-01-31', amount:594.98,  notes:'HSA reimbursement — imported from 2026 tracker' },
@@ -1622,7 +1675,10 @@ function isKid(person) { return person === 'David' || person === 'Coraline'; }
 
 // h_ entries are historical children's expenses imported for co-parent tracking only —
 // they are not HSA-eligible (those years' reimbursements happened outside this app).
-function isHSAEligible(e) { return !e.id.startsWith('h_'); }
+// hsaHistorical entries are prior-year personal HSA expenses added for reference only.
+function isHSAEligible(e) { return !e.id.startsWith('h_') && !e.hsaHistorical; }
+// isHSAVisible: shown in the HSA table (includes hsaHistorical for reference) but not h_ (children only)
+function isHSAVisible(e)  { return !e.id.startsWith('h_'); }
 
 function calcHSA() {
   const total = DATA.expenses.filter(isHSAEligible).reduce((s, e) => s + e.amount, 0);
@@ -1756,6 +1812,7 @@ function renderDashboard() {
 
 let _chartByPerson = null;
 let _chartByMonth  = null;
+let _chartTrend    = null;
 
 function renderDashboardCharts() {
   if (typeof Chart === 'undefined') return; // CDN not loaded yet
@@ -1832,6 +1889,101 @@ function renderDashboardCharts() {
   const c2title = ctx2?.closest('.card')?.querySelector('.card-title span');
   if (c1title) c1title.textContent = `(${yearLabel})`;
   if (c2title) c2title.textContent = `(${yearLabel})`;
+
+  // ── Chart 3: Cumulative spending trend line ──
+  const curYearStr3 = String(new Date().getFullYear());
+  const curMonth    = new Date().getMonth(); // 0-indexed
+  const selYear     = thisYear || curYearStr3;
+  const prevYear    = String(parseInt(selYear) - 1);
+  const prevYearExp = DATA.expenses.filter(e => e.date?.startsWith(prevYear));
+
+  // Build cumulative arrays month-by-month
+  let cumCur = 0, cumPrv = 0;
+  const trendCurrent = months.map((_, mi) => {
+    const mm = String(mi + 1).padStart(2, '0');
+    cumCur += yearExp.filter(e => e.date?.startsWith(`${selYear}-${mm}`)).reduce((s,e) => s+e.amount, 0);
+    // For the current calendar year, don't plot future months
+    if (selYear === curYearStr3 && mi > curMonth) return null;
+    return cumCur;
+  });
+  const trendPrev = months.map((_, mi) => {
+    const mm = String(mi + 1).padStart(2, '0');
+    cumPrv += prevYearExp.filter(e => e.date?.startsWith(`${prevYear}-${mm}`)).reduce((s,e) => s+e.amount, 0);
+    return cumPrv || null;
+  });
+
+  const hasPrev = prevYearExp.length > 0;
+  const prevLegendEl = document.getElementById('trendPrevLegend');
+  const prevLabelEl  = document.getElementById('trendPrevLabel');
+  const trendYearEl  = document.getElementById('trendYearLabel');
+  if (prevLegendEl) prevLegendEl.style.display = hasPrev ? 'flex' : 'none';
+  if (prevLabelEl)  prevLabelEl.textContent = prevYear;
+  if (trendYearEl)  trendYearEl.textContent = `(${selYear})`;
+
+  const trendColor    = '#10b981';
+  const trendFill     = isDark ? 'rgba(16,185,129,0.12)' : 'rgba(16,185,129,0.10)';
+  const prevLineColor = isDark ? 'rgba(148,163,184,0.5)' : 'rgba(100,116,139,0.45)';
+
+  const ctx3 = document.getElementById('chartTrend');
+  if (ctx3) {
+    if (_chartTrend) _chartTrend.destroy();
+    const trendDatasets = [
+      {
+        label: selYear,
+        data: trendCurrent,
+        borderColor: trendColor,
+        backgroundColor: trendFill,
+        fill: true,
+        tension: 0.4,
+        borderWidth: 2.5,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        pointBackgroundColor: trendColor,
+        spanGaps: false,
+      }
+    ];
+    if (hasPrev) {
+      trendDatasets.push({
+        label: prevYear,
+        data: trendPrev,
+        borderColor: prevLineColor,
+        backgroundColor: 'transparent',
+        fill: false,
+        tension: 0.4,
+        borderWidth: 1.5,
+        borderDash: [5, 4],
+        pointRadius: 2,
+        pointHoverRadius: 4,
+        pointBackgroundColor: prevLineColor,
+        spanGaps: false,
+      });
+    }
+    _chartTrend = new Chart(ctx3, {
+      type: 'line',
+      data: { labels: months, datasets: trendDatasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          x: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor } },
+          y: {
+            ticks: { color: textColor, font: { size: 11 }, callback: v => '$' + v.toLocaleString() },
+            grid: { color: gridColor },
+            beginAtZero: true,
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.dataset.label}: $${ctx.raw?.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) ?? '—'}`
+            }
+          }
+        }
+      }
+    });
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1854,7 +2006,7 @@ function renderHSA() {
   const filterPerson = document.getElementById('hsaFilterPerson')?.value || '';
   const filterYear   = ysel?.value || '';
 
-  let expenses = [...DATA.expenses].filter(isHSAEligible).sort((a,b) => b.date.localeCompare(a.date));
+  let expenses = [...DATA.expenses].filter(isHSAVisible).sort((a,b) => b.date.localeCompare(a.date));
   if (filterPerson) expenses = expenses.filter(e => e.person === filterPerson);
   if (filterYear)   expenses = expenses.filter(e => e.date?.startsWith(filterYear));
 
@@ -1903,12 +2055,15 @@ function renderHSA() {
     tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon"><i data-lucide="stethoscope" class="licon" style="width:38px;height:38px"></i></div><p>No expenses yet. Click "+ Add Expense" to get started.</p></div></td></tr>`;
     tfoot.innerHTML = '';
   } else {
-    const filtTotal = expenses.reduce((s, e) => s + e.amount, 0);
+    const currentExps  = expenses.filter(e => !e.hsaHistorical);
+    const histExps     = expenses.filter(e =>  e.hsaHistorical);
+    const filtTotal    = currentExps.reduce((s, e) => s + e.amount, 0);
+    const histTotal    = histExps.reduce((s, e) => s + e.amount, 0);
     tbody.innerHTML = expenses.map(e => `
-      <tr>
+      <tr${e.hsaHistorical ? ' style="opacity:0.65"' : ''}>
         <td>${fmtDate(e.date)}</td>
         <td>${personBadge(e.person)}</td>
-        <td>${e.provider}</td>
+        <td>${e.provider}${e.hsaHistorical ? ' <span style="display:inline-block;font-size:10px;font-weight:600;background:var(--gray-200);color:var(--gray-500);padding:1px 6px;border-radius:4px;margin-left:4px;white-space:nowrap">Prior Year</span>' : ''}</td>
         <td class="amount"><strong>${fmt$(e.amount)}</strong></td>
         <td style="font-size:12px;color:var(--gray-500)">${e.receiptName || '—'}</td>
         <td style="font-size:12px;color:var(--gray-500);max-width:180px">${e.notes || ''}</td>
@@ -1922,9 +2077,9 @@ function renderHSA() {
     `).join('');
     tfoot.innerHTML = `
       <tr>
-        <td colspan="3">Total (${expenses.length} shown)</td>
+        <td colspan="3">Current total (${currentExps.length} entries)</td>
         <td class="amount">${fmt$(filtTotal)}</td>
-        <td colspan="3"></td>
+        <td colspan="3" style="font-size:11px;color:var(--gray-500)">${histExps.length > 0 ? `+ ${histExps.length} prior year: ${fmt$(histTotal)} (reference only)` : ''}</td>
       </tr>
     `;
   }
@@ -1962,11 +2117,27 @@ function renderHSA() {
 
 function renderChildren() {
   const filterPerson = document.getElementById('childFilterPerson')?.value || '';
+
+  // Populate year filter from available children's expense years
+  const childYears = [...new Set(
+    DATA.expenses.filter(e => isKid(e.person) && !e.skipChildren)
+      .map(e => e.date?.split('-')[0]).filter(Boolean)
+  )].sort().reverse();
+  const cysel = document.getElementById('childFilterYear');
+  if (cysel) {
+    const prev = cysel.value;
+    cysel.innerHTML = `<option value="">All Years</option>` +
+      childYears.map(y => `<option${y === prev ? ' selected' : ''}>${y}</option>`).join('');
+    if (prev) cysel.value = prev;
+  }
+  const filterYear = cysel?.value || '';
+
   // Only show new expenses (not the HSA backfill imports)
   let expenses = DATA.expenses
     .filter(e => isKid(e.person) && !e.skipChildren)
     .sort((a,b) => b.date.localeCompare(a.date));
   if (filterPerson) expenses = expenses.filter(e => e.person === filterPerson);
+  if (filterYear)   expenses = expenses.filter(e => e.date?.startsWith(filterYear));
 
   // Person filter banner
   const banner = document.getElementById('childPersonBanner');
@@ -2033,9 +2204,9 @@ function renderChildren() {
     </tr>
   `).join('');
 
-  // Historical opening balance row (from the imported spreadsheet)
+  // Historical opening balance row — only show when not filtering by a specific year
   const ob = child.ob;
-  const histRow = ob.total27pct > 0 ? `
+  const histRow = ob.total27pct > 0 && !filterYear ? `
     <tr style="background:#f8fafc;border-top:2px solid var(--gray-200)">
       <td style="font-size:12px;color:var(--gray-500)">thru 12/31/25</td>
       <td colspan="2" style="font-size:12px;color:var(--gray-500);font-style:italic">
@@ -2052,10 +2223,17 @@ function renderChildren() {
   tbody.innerHTML = newExpRows + histRow ||
     `<tr><td colspan="8"><div class="empty-state"><div class="icon"><i data-lucide="users" class="licon" style="width:38px;height:38px"></i></div><p>No new expenses yet. Add a child's expense to get started.</p></div></td></tr>`;
 
-  const newTotal = expenses.reduce((s, e) => s + e.amount, 0);
-  const new27 = expenses.reduce((s, e) => s + e.amount * RATE, 0);
+  const filtTotal = expenses.reduce((s, e) => s + e.amount, 0);
+  const filt27    = expenses.reduce((s, e) => s + e.amount * RATE, 0);
 
-  tfoot.innerHTML = `
+  tfoot.innerHTML = filterYear ? `
+    <tr>
+      <td colspan="3">${filterYear} total (${expenses.length} entries)</td>
+      <td class="amount">${fmt$(filtTotal)}</td>
+      <td class="amount" style="color:var(--warning)">${fmt$(filt27)}</td>
+      <td colspan="3" style="font-size:12px;color:var(--gray-500)">27% owed for ${filterYear} · <em>balance is cumulative all-time</em></td>
+    </tr>
+  ` : `
     <tr>
       <td colspan="3">All-time total (incl. history)</td>
       <td class="amount">—</td>
@@ -2169,6 +2347,7 @@ function openAddExpense(context) {
   document.getElementById('expAmount').value = '';
   document.getElementById('expReceipt').value = '';
   document.getElementById('expNotes').value = '';
+  document.getElementById('expHistorical').checked = false;
   document.getElementById('expPreview').style.display = 'none';
 
   if (context === 'children') {
@@ -2210,7 +2389,10 @@ function saveExpense() {
     return;
   }
 
-  DATA.expenses.push({ id: uid(), date, person, provider, amount, receiptName, notes });
+  const hsaHistorical = document.getElementById('expHistorical').checked || false;
+  const newExp = { id: uid(), date, person, provider, amount, receiptName, notes };
+  if (hsaHistorical) newExp.hsaHistorical = true;
+  DATA.expenses.push(newExp);
   saveData(DATA);
   closeModal('modalAddExpense');
   renderPage(currentPage());
@@ -2231,6 +2413,7 @@ function openEditExpense(id) {
   document.getElementById('editExpAmount').value = e.amount;
   document.getElementById('editExpReceipt').value = e.receiptName || '';
   document.getElementById('editExpNotes').value = e.notes || '';
+  document.getElementById('editExpHistorical').checked = !!e.hsaHistorical;
   openModal('modalEditExpense');
 }
 
@@ -2251,7 +2434,10 @@ function updateExpense() {
     return;
   }
 
-  DATA.expenses[idx] = { ...DATA.expenses[idx], date, person, provider, amount, receiptName, notes };
+  const hsaHistorical = document.getElementById('editExpHistorical').checked || false;
+  const updated = { ...DATA.expenses[idx], date, person, provider, amount, receiptName, notes };
+  if (hsaHistorical) { updated.hsaHistorical = true; } else { delete updated.hsaHistorical; }
+  DATA.expenses[idx] = updated;
   saveData(DATA);
   closeModal('modalEditExpense');
   renderPage(currentPage());
